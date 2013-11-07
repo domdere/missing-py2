@@ -41,7 +41,7 @@ module Python.Types (
                      CPyObject,
                      PyException(..),
                      StartFrom(..)
-#ifndef PYTHON_PRE_2_3                     
+#ifndef PYTHON_PRE_2_3
                     ,PyGILState(..)
                     ,CPyGILState
 #endif
@@ -52,9 +52,10 @@ import Foreign (ForeignPtr)
 import Data.Typeable (
                       TyCon
                     , mkTyConApp
-                    , mkTyCon
+                    , mkTyCon3
                     , Typeable(..)
                     )
+import Control.Exception (Exception)
 
 type CPyObject = ()
 
@@ -75,13 +76,15 @@ data PyException = PyException {excType :: PyObject, -- ^ Exception type
                                 excFormatted :: String -- ^ Formatted for display
                                }
 instance Show PyException where
-    show x = excFormatted x
+    show = excFormatted
 
 pyExceptionTc :: TyCon
-pyExceptionTc = mkTyCon "MissingPy.Python.Types.PyException"
+pyExceptionTc = mkTyCon3 "MissingPy" "Python.Types" "PyException"
 
 instance Typeable PyException where
     typeOf _ = mkTyConApp pyExceptionTc []
+
+instance Exception PyException
 
 {- | How to interpret a snippet of Python code. -}
 data StartFrom = Py_eval_input

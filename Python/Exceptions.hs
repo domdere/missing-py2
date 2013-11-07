@@ -36,7 +36,6 @@ module Python.Exceptions (-- * Types
                           -- * General Catching
                           catchPy,
                           handlePy,
-                          pyExceptions,
                           -- * Catching of specific Python exceptions
                           catchSpecificPy,
                           -- * Exception Object Operations
@@ -58,14 +57,14 @@ import Python.Types (
                         )
 import Data.Dynamic (fromDynamic)
 import Python.ForeignImports (pyErr_GivenExceptionMatches)
-import Control.OldException (throwDyn, catchDyn, dynExceptions, Exception)
+import Control.Exception (throw, catch, Exception)
 
 {- | Execute the given IO action.
 
 If it raises a 'PyException', then execute the supplied handler and return
 its return value.  Otherwise, process as normal. -}
 catchPy :: IO a -> (PyException -> IO a) -> IO a
-catchPy = catchDyn
+catchPy = catch
 
 {- | Like 'catchPy', with the order of arguments reversed. -}
 handlePy :: (PyException -> IO a) -> IO a -> IO a
@@ -78,14 +77,8 @@ catchSpecificPy pyo action handlerfunc =
     let handler e = do d <- doesExceptionMatch e pyo
                        if d
                           then handlerfunc e
-                          else throwDyn e
+                          else throw e
         in catchPy action handler
-
-{- | Useful as the first argument to catchJust, tryJust, or handleJust.
-Return Nothing if the given exception is not a 'PyException', or 
-the exception otherwise. -}
-pyExceptions :: Exception -> Maybe PyException
-pyExceptions exc = dynExceptions exc >>= fromDynamic
 
 {- | When an exception is thrown, it is not immediately formatted.
 
@@ -109,10 +102,7 @@ doesExceptionMatch e pyo =
     withPyObject (excType e) (\ctyp ->
      withPyObject pyo (\cpo ->
       do r <- pyErr_GivenExceptionMatches ctyp cpo >>= checkCInt
-         if r == 0
-            then return False
-            else return True
-                      ))
+         return $ not $ r == 0))
 
 {- | A handler for use in 'catchPy' or 'handlePy'.  Grabs the Python exception,
 describes it, and raises the description in the IO monad with 'fail'. -}

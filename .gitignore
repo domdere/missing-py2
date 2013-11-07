@@ -1,0 +1,14 @@
+# Haskell build files
+*.a
+*.o
+*.hi
+
+# files we just generally ont want in the repo
+*.swp
+*.log
+
+#cabal build directory:
+dist/
+
+#cabal-dev build info
+*.buildinfo
