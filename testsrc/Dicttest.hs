@@ -1,4 +1,3 @@
-{-# OPTIONS -fallow-overlapping-instances #-}
 {- arch-tag: AnyDBM/Dict Python Tests Main File
 Copyright (C) 2004-2005 John Goerzen <jgoerzen@complete.org>
 
@@ -17,7 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 -}
 
-module Dicttest(mf, generic_test, tests) where
+module Dicttest(mf, genericTest, tests) where
 import Test.HUnit
 import Data.List.Utils
 import System.IO.HVFS
@@ -26,8 +25,9 @@ import Database.AnyDBM
 import Database.AnyDBM.StringDBM
 import Database.AnyDBM.MapDBM
 import Data.HashTable
-import Data.List(sort)
-import Control.Exception(finally)
+import Data.List (sort)
+import Control.Exception (finally)
+import Control.Monad (liftM)
 import Python.Objects
 import Python.Objects.Dict
 
@@ -36,7 +36,7 @@ mf initfunc openfunc msg code =
     TestLabel msg $ TestCase $ do i <- initfunc
                                   h <- openfunc i
                                   finally (code h) (closeA h)
-        
+
 infix 1 @>=?
 (@>=?) :: (Eq a, Show a) => a -> IO a -> Assertion
 (@>=?) exp res = do r <- res
@@ -46,21 +46,20 @@ deleteall h = do k <- keysA h
                  mapM_ (deleteA h) k
                  [] @>=? keysA h
 
-weirdl = sort $ [("", "empty"), 
+weirdl = sort [("", "empty"),
                  ("foo\nbar", "v1\0v2"),
                  ("v3,v4", ""),
                  ("k\0ey", "\xFF")]
 
-generic_test initfunc openfunc =
+genericTest initfunc openfunc =
     let f = mf initfunc openfunc in
         [
          f "empty" $ \h -> do [] @>=? keysA h
                               [] @>=? valuesA h
                               [] @>=? toListA h
                               Nothing @>=? lookupA h "foo"
-                     
         ,f "basic" $ \h -> do insertA h "key" "value"
-                              (Just "value") @>=? lookupA h "key"
+                              Just "value" @>=? lookupA h "key"
                               [("key", "value")] @>=? toListA h
                               insertA h "key" "v2"
                               [("key", "v2")] @>=? toListA h
@@ -68,37 +67,37 @@ generic_test initfunc openfunc =
                               [] @>=? toListA h
         ,f "mult" $ \h -> do insertListA h [("1", "2"), ("3", "4"), ("5", "6")]
                              [("1", "2"), ("3", "4"), ("5", "6")] @>=? 
-                                (toListA h >>= return . sort)
-                             ["1", "3", "5"] @>=? (keysA h >>= return . sort)
-                             ["2", "4", "6"] @>=? (valuesA h >>= return . sort)
+                                liftM sort (toListA h)
+                             ["1", "3", "5"] @>=? liftM sort (keysA h)
+                             ["2", "4", "6"] @>=? liftM sort (valuesA h)
                              deleteall h
         ,f "weirdchars" $ \h -> do insertListA h weirdl
-                                   weirdl @>=? (toListA h >>= return . sort)
+                                   weirdl @>=? liftM sort (toListA h)
                                    deleteall h
         ]
 
-generic_persist_test initfunc openfunc =
+genericPersistTest initfunc openfunc =
     let f = mf initfunc openfunc in
         [
          f "empty" deleteall 
         ,f "weirdpop" $ \h -> insertListA h weirdl
-        ,f "weirdcheck" $ \h -> do weirdl @>=? (toListA h >>= return . sort)
+        ,f "weirdcheck" $ \h -> do weirdl @>=? liftM sort (toListA h)
                                    deleteall h
                                    insertA h "key" "value"
-        ,f "step3" $ \h -> do [("key", "value")] @>=? (toListA h >>= return . sort)
+        ,f "step3" $ \h -> do [("key", "value")] @>=? liftM sort (toListA h)
                               insertA h "key" "v2"
                               insertA h "z" "y"
-        ,f "step4" $ \h -> do [("key", "v2"), ("z", "y")] @>=?
-                                 (toListA h >>= return . sort)
+        ,f "step4" $ \h -> [("key", "v2"), ("z", "y")] @>=?
+                                 liftM sort (toListA h)
         ,f "cleanup" deleteall
         ]
 
-test_dict = generic_test (return ())
+testDict = genericTest (return ())
              (\_ -> toPyObject ([]::[(String, String)]) >>= return . mkPyDict)
 
 
 
-tests = TestList [TestLabel "Basic Dict" (TestList test_dict)
+tests = TestList [TestLabel "Basic Dict" (TestList testDict)
                  ]
 
 

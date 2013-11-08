@@ -21,17 +21,17 @@ import Test.HUnit
 import MissingPy.AnyDBM
 import AnyDBMtest hiding (tests)
 
-testmod m = generic_persist_test (return ())
+testmod m = genericPersistTest (return ())
              (\f -> openSpecificDBM m ("testtmp/" ++ m) DBM_ReadWriteCreate)
             ++
-            generic_test (return ())
+            genericTest (return ())
              (\f -> openSpecificDBM m ("testtmp/" ++ m) DBM_ReadWriteCreate)
 
-tests = TestList [TestLabel "anydbm" (TestList $ testmod "anydbm")
-                 ,TestLabel "dbhash" (TestList $ testmod "dbhash")
---                 ,TestLabel "dbm" (TestList $ testmod "dbm")
-                 ,TestLabel "dumbdbm" (TestList $ testmod "dumbdbm")
-                 ,TestLabel "gdbm" (TestList $ testmod "gdbm")
+tests = TestList [  TestLabel "anydbm" (TestList $ testmod "anydbm")
+                 ,  TestLabel "dbhash" (TestList $ testmod "dbhash")
+--               ,  TestLabel "dbm" (TestList $ testmod "dbm")
+                 ,  TestLabel "dumbdbm" (TestList $ testmod "dumbdbm")
+                 ,  TestLabel "gdbm" (TestList $ testmod "gdbm")
                  ]
 
 

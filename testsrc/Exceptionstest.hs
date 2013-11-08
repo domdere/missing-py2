@@ -1,4 +1,3 @@
-{-# OPTIONS -fallow-overlapping-instances #-}
 {- arch-tag: Exceptions tests main file
 Copyright (C) 2005 John Goerzen <jgoerzen@complete.org>
 
@@ -23,34 +22,36 @@ import Python.Objects
 import Python.Exceptions
 import Python.Exceptions.ExcTypes
 import Python.Interpreter
-import Foreign.C.Types
-import qualified Control.Exception
+import Python.Types
+import Control.Exception (catch)
 
-f msg inp code exp = TestLabel msg $ TestCase $ do pyo <- toPyObject inp
-                                                   r <- code pyo
-                                                   exp @=? r
+--f :: (ToPyObject a, Eq b, Show b) => String -> a -> (PyObject -> IO b) -> b -> Test
+--f msg inp code expression = TestLabel msg $ TestCase $ do
+--    pyo <- toPyObject inp
+--    r <- code pyo
+--    expression @=? r
 
-test_base =
-    let handler e = return ()
+testBase :: [Test]
+testBase =
+    let handler = const $ return ()
         in
-        [
-         TestCase $ catchPy (
-                       do r <- pyRun_StringHs " 2 + None" Py_eval_input noKwParms
-                          r @=? "no exception raised"
-                            ) handler
-        ,TestCase $ catchSpecificPy typeError (
-                       do r <- pyRun_StringHs "2 + None" Py_eval_input noKwParms
-                          r @=? "no exception raised"
-                                               ) handler
-        ,TestCase $ catchSpecificPy valueError (
-                       do Control.Exception.catch 
-                                (do r <- pyRun_StringHs "2 + None" Py_eval_input noKwParms
-                                    r @=? "no exception raised"
-                                )
-                                 (\e -> return () )
-                                               )
-                                               (\e -> fail "Incorrectly caught exception")
+        [   TestCase $ catchPy (do
+                r <- pyRun_StringHs " 2 + None" Py_eval_input noKwParms
+                r @=? "no exception raised"
+                ) handler
+        ,   TestCase $ catchSpecificPy typeError (do
+                r <- pyRun_StringHs "2 + None" Py_eval_input noKwParms
+                r @=? "no exception raised"
+                ) handler
+        ,   TestCase $ catchSpecificPy valueError (
+                catch (do
+                    r <- pyRun_StringHs "2 + None" Py_eval_input noKwParms
+                    r @=? "no exception raised"
+                    )
+                (\PyException {} -> return () )
+                ) (const $ fail "Incorrectly caught exception")
         ]
-                
-tests = TestList [TestLabel "base" (TestList test_base)
+
+tests :: Test
+tests = TestList [  TestLabel "base" (TestList testBase)
                  ]

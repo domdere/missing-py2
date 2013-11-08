@@ -1,17 +1,17 @@
-Name: MissingPy
-Version: 0.10.6
-License: MIT
-Maintainer: Matt Brown <matt@softmechanics.net>
-Author: John Goerzen
+name: MissingPy
+version: 0.10.6
+license: MIT
+maintainer: Matt Brown <matt@softmechanics.net>
+author: John Goerzen
 license-file: COPYRIGHT
 extra-source-files: COPYING, genexceptions.hs, README, INSTALL,
                     glue/excglue.h, glue/glue.h
-Stability: Alpha
-Copyright: Copyright (c) 2005-2008 John Goerzen
-Synopsis: Haskell interface to Python
-Homepage: http://github.com/softmechanics/missingpy
-Bug-reports: http://github.com/softmechanics/missingpy/issues
-Description:  MissingPy is two things:
+stability: Alpha
+copyright: Copyright (c) 2005-2008 John Goerzen
+synopsis: Haskell interface to Python
+homepage: http://github.com/softmechanics/missingpy
+bug-reports: http://github.com/softmechanics/missingpy/issues
+description:  MissingPy is two things:
  .
  A Haskell binding for many C and Python libraries for tasks such as
  data compression, databases, etc.  This can be found in the
@@ -28,23 +28,64 @@ Description:  MissingPy is two things:
  MissingPy is the companion to my MissingH library, and integrates with
  it.
 
-Build-Type: Custom
-cabal-version: >= 1.6
+build-type: Custom
+cabal-version: >= 1.10
 
-Library
-  Exposed-Modules: Python.Types,
-   Python.Utils,
-   Python.Objects,
-   Python.Interpreter,
-   Python.Exceptions,
-   Python.Exceptions.ExcTypes,
-   Python.Objects.File,
-   Python.Objects.Dict,
-   MissingPy.FileArchive.GZip,
-   MissingPy.FileArchive.BZip2,
-   MissingPy.AnyDBM
-  Other-Modules: Python.ForeignImports
-  Build-Depends: base == 4.*, MissingH>=1.0.1, anydbm>=1.0.5
-  C-Sources: glue/glue.c glue/excglue.c
-  Extensions: ForeignFunctionInterface, TypeSynonymInstances,
-              FlexibleInstances
+library
+    default-language:
+        Haskell2010
+
+    exposed-modules: Python.Types,
+        Python.Utils,
+        Python.Objects,
+        Python.Interpreter,
+        Python.Exceptions,
+        Python.Exceptions.ExcTypes,
+        Python.Objects.File,
+        Python.Objects.Dict,
+        MissingPy.FileArchive.GZip,
+        MissingPy.FileArchive.BZip2,
+        MissingPy.AnyDBM
+
+    other-modules:
+        Python.ForeignImports
+
+    build-depends:
+        base == 4.*,
+        MissingH >= 1.0.1,
+        anydbm >= 1.0.5
+
+    c-sources: glue/glue.c glue/excglue.c
+
+    default-extensions:
+        ForeignFunctionInterface,
+        TypeSynonymInstances,
+        FlexibleInstances
+
+test-suite  unittests
+    type:   detailed-0.9
+    test-module: MissingPyTests
+
+    default-language:
+            Haskell2010
+
+    build-depends:
+        base == 4.*,
+        Cabal,
+        cabal-test-hunit,
+        anydbm >= 1.0.5,
+        directory,
+        hashtables,
+        MissingH >= 1.0.1,
+        HUnit,
+        MissingPy
+
+    ghc-options:
+        -Wall
+        -threaded
+
+    hs-source-dirs:
+        testsrc
+
+    default-extensions:
+        OverlappingInstances

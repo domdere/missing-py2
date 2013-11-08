@@ -108,7 +108,7 @@ import System.IO.Unsafe
 {- | Initialize the Python interpreter environment.
 
 MUST BE DONE BEFORE DOING ANYTHING ELSE! -}
-py_initialize =  
+py_initialize =
   if rtsSupportsBoundThreads
      then py_initializeThreaded
      else py_initialize'

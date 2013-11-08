@@ -1,4 +1,3 @@
-{-# OPTIONS -fallow-overlapping-instances #-}
 {- arch-tag: GZip tests main file
 Copyright (C) 2005-2008 John Goerzen <jgoerzen@complete.org>
 
@@ -21,43 +20,43 @@ module GZiptest(tests) where
 import Test.HUnit
 import Python.Exceptions
 import MissingPy.FileArchive.GZip
-import Data.List
 import System.IO.HVIO
 import System.IO
 import System.IO.Error
 import Testutil
 import System.Directory
-import qualified Control.Exception
+import Control.Exception (finally)
 
-finally = Control.Exception.finally
+f :: String -> String -> Test
+f fn expression = TestCase $ do
+    gzf <- openGz ("testsrc/gzfiles/" ++ fn) ReadMode 9
+    c <- vGetContents gzf
+    expression @=? c
+    vClose gzf
 
-f fn exp = TestCase $ do gzf <- openGz ("testsrc/gzfiles/" ++ fn) ReadMode 9
-                         c <- vGetContents gzf
-                         exp @=? c
-                         vClose gzf
-                             
-
-test_gunzip =
-    [
-     f "t1.gz" "Test 1"
-    ,f "empty.gz" ""
+testGunzip :: [Test]
+testGunzip =
+    [   f "t1.gz" "Test 1"
+    ,   f "empty.gz" ""
      --    , "t1bad has errors
-    ,f "t2.gz" "Test 1Test 2"
-    ,TestCase $ handlePy exc2ioerror $
+    ,   f "t2.gz" "Test 1Test 2"
+    ,   TestCase $ handlePy exc2ioerror $
                 do gzf <- openGz "testsrc/gzfiles/t1bad.gz" ReadMode 1
-                   assertRaises "crc" (Control.Exception.IOException $ userError "Python <type 'exceptions.IOError'>: CRC check failed") 
+                   assertRaises "crc" (userError "Python <type 'exceptions.IOError'>: CRC check failed")
                       (handlePy exc2ioerror $ do c <- vGetContents gzf
                                                  "nonexistant bad data" @=? c
                       )
                    vClose gzf
-    ,TestCase $ do gzf <- openGz "testsrc/gzfiles/zeros.gz" ReadMode 1
-                   c <- vGetContents gzf
-                   10485760 @=? length c
-                   vClose gzf
-    --,f "zeros.gz" (replicate 10485760 '\0')
+    ,   TestCase $ do
+            gzf <- openGz "testsrc/gzfiles/zeros.gz" ReadMode 1
+            c <- vGetContents gzf
+            10485760 @=? length c
+            vClose gzf
+    --,   f "zeros.gz" (replicate 10485760 '\0')
     ]
 
-test_gzip = TestCase $ 
+testGzip :: Test
+testGzip = TestCase $
     handlePy exc2ioerror $
     do gzf <- openGz "testsrc/gzfiles/deleteme.gz" ReadWriteMode 9
        finally (do vPutStr gzf "Test 2\n"
@@ -72,14 +71,13 @@ test_gzip = TestCase $
                    vGetLine gzf2 >>= (@=? "Test 3")
                    vRewind gzf2
                    c <- vGetContents gzf2
-                   ("Test 2\nTest 3\n" ++ (replicate 1048576 't') ++ "\n") 
+                   ("Test 2\nTest 3\n" ++ replicate 1048576 't' ++ "\n")
                       @=? c
-                   assertRaises "eof" (Control.Exception.IOException $ mkIOError eofErrorType "" Nothing Nothing) (vGetLine gzf2)
+                   assertRaises "eof" (mkIOError eofErrorType "" Nothing Nothing) (vGetLine gzf2)
                    vClose gzf2
                ) (removeFile "testsrc/gzfiles/deleteme.gz")
-                   
 
-tests = TestList [TestLabel "gzip" test_gzip,
-                  TestLabel "gunzip" (TestList test_gunzip)
-
-                 ]
+tests :: Test
+tests = TestList    [   TestLabel "gzip" testGzip
+                    ,   TestLabel "gunzip" (TestList testGunzip)
+                    ]

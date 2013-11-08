@@ -18,20 +18,21 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 module Testutil(assertRaises, mapassertEqual) where
 import Test.HUnit
+import Control.Monad (unless)
 import qualified Control.Exception
 
-assertRaises :: Show a => String -> Control.Exception.Exception -> IO a -> IO ()
+assertRaises :: (Show a, Control.Exception.Exception b, Eq b) => String -> b -> IO a -> IO ()
 assertRaises msg selector action =
-    let thetest e = if e == selector then return ()
-                    else assertFailure $ msg ++ "\nReceived unexpected exception: "
-                             ++ (show e) ++ "\ninstead of exception: " ++ (show selector)
+    let thetest e = unless (e == selector) $
+                    assertFailure $ msg ++ "\nReceived unexpected exception: "
+                        ++ show e ++ "\ninstead of exception: " ++ show selector
         in do
            r <- Control.Exception.try action
            case r of
                   Left e -> thetest e
-                  Right x -> assertFailure $ msg ++ "\nReceived no exception, but was expecting exception: " ++ (show selector)
+                  Right _ -> assertFailure $ msg ++ "\nReceived no exception, but was expecting exception: " ++ show selector
 
 mapassertEqual :: (Show b, Eq b) => String -> (a -> b) -> [(a, b)] -> [Test]
-mapassertEqual descrip func [] = []
+mapassertEqual _ _ [] = []
 mapassertEqual descrip func ((inp,result):xs) =
     (TestCase $ assertEqual descrip result (func inp)) : mapassertEqual descrip func xs

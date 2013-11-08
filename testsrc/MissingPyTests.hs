@@ -16,12 +16,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 -}
 
-module Main where 
+module MissingPyTests (tests) where
 
-import Test.HUnit
-import Tests
+import qualified Tests as T
 import Python.Interpreter
 
-main = do py_initialize
-          runTestTT tests
+import qualified Distribution.TestSuite as CabalTests
+import qualified Distribution.TestSuite.HUnit as HUnitTests
+
+tests :: IO [CabalTests.Test]
+tests = do
+    py_initialize
+    return $ map (uncurry HUnitTests.test) [("MissingPy Tests", T.tests)]
+
 
