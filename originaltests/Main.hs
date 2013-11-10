@@ -16,17 +16,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 -}
 
-module MissingPyTests (tests) where
+module Main where
 
-import qualified Tests as T
+import Tests (tests)
 import Python.Interpreter
 
-import qualified Distribution.TestSuite as CabalTests
-import qualified Distribution.TestSuite.HUnit as HUnitTests
+import Control.Monad (unless)
+import Test.HUnit (runTestTT, Counts(..))
+import System.Exit (exitFailure)
 
-tests :: IO [CabalTests.Test]
-tests = do
+main :: IO ()
+main = do
     py_initialize
-    return $ map (uncurry HUnitTests.test) [("MissingPy Tests", T.tests)]
+    counts <- runTestTT tests
+    unless (isSuccess counts) exitFailure
 
+isSuccess :: Counts -> Bool
+isSuccess (Counts _ _ numErrors numFails) = (numErrors == 0) && (numFails == 0)
 

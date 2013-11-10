@@ -1,7 +1,7 @@
-name: MissingPy
-version: 0.10.6
+name: missing-py2
+version: 1.0.0
 license: MIT
-maintainer: Matt Brown <matt@softmechanics.net>
+maintainer: Dom De Re
 author: John Goerzen
 license-file: COPYRIGHT
 extra-source-files: COPYING, genexceptions.hs, README, INSTALL,
@@ -9,9 +9,18 @@ extra-source-files: COPYING, genexceptions.hs, README, INSTALL,
 stability: Alpha
 copyright: Copyright (c) 2005-2008 John Goerzen
 synopsis: Haskell interface to Python
-homepage: http://github.com/softmechanics/missingpy
-bug-reports: http://github.com/softmechanics/missingpy/issues
-description:  MissingPy is two things:
+homepage: http://github.com/domdere/missing-py2
+bug-reports: http://github.com/domdere/missing-py2/issues
+description:
+
+ A fork of John Goerzen's MissingPy library, hlinted and updated to run with GHC 7.6.3
+
+ A Haskell Interface into the standard Python Interpreter
+
+ Original Documentation:
+ 
+ MissingPy is two things:
+ 
  .
  A Haskell binding for many C and Python libraries for tasks such as
  data compression, databases, etc.  This can be found in the
@@ -55,6 +64,9 @@ library
         MissingH >= 1.0.1,
         anydbm >= 1.0.5
 
+    hs-source-dirs:
+        src
+
     c-sources: glue/glue.c glue/excglue.c
 
     default-extensions:
@@ -62,9 +74,9 @@ library
         TypeSynonymInstances,
         FlexibleInstances
 
-test-suite  unittests
-    type:   detailed-0.9
-    test-module: MissingPyTests
+test-suite  originalunittests
+    type:       exitcode-stdio-1.0
+    main-is:    Main.hs
 
     default-language:
             Haskell2010
@@ -72,7 +84,6 @@ test-suite  unittests
     build-depends:
         base == 4.*,
         Cabal,
-        cabal-test-hunit,
         anydbm >= 1.0.5,
         directory,
         hashtables,
@@ -85,7 +96,7 @@ test-suite  unittests
         -threaded
 
     hs-source-dirs:
-        testsrc
+        originaltests
 
     default-extensions:
         OverlappingInstances

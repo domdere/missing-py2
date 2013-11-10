@@ -9,6 +9,7 @@
 
 #cabal build directory:
 dist/
+cabal-dev/
 
 #cabal-dev build info
 *.buildinfo
