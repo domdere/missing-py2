@@ -35,25 +35,33 @@ mf initfunc openfunc msg code =
                                   h <- openfunc i
                                   finally (code h) (closeA h)
 
-infix 1 @>=?
 (@>=?) :: (Eq a, Show a) => a -> IO a -> Assertion
-(@>=?) exp res = do r <- res
-                    exp @=? r
+(@>=?) expression res = do
+    r <- res
+    expression @=? r
 
+infix 1 @>=?
+
+deleteall :: AnyDBM a => a -> IO ()
 deleteall h = do
     k <- keysA h
     mapM_ (deleteA h) k
     [] @>=? keysA h
 
+weirdl :: [(String, String)]
 weirdl = sort   [   ("", "empty")
                 ,   ("foo\nbar", "v1\0v2")
                 ,   ("v3,v4", "")
                 ,   ("k\0ey", "")
                 ]
 
+createdir :: Test
 createdir = TestCase $ createDirectory "testtmp"
+
+removedir :: Test
 removedir = TestCase $ recursiveRemove SystemFS "testtmp"
 
+genericTest :: AnyDBM a => IO b -> (b -> IO a) -> [Test]
 genericTest initfunc openfunc =
     let f = mf initfunc openfunc in
         [   createdir
@@ -84,6 +92,7 @@ genericTest initfunc openfunc =
         ,   removedir
         ]
 
+genericPersistTest :: AnyDBM a => IO b -> (b -> IO a) -> [Test]
 genericPersistTest initfunc openfunc =
     let f = mf initfunc openfunc in
         [   createdir
@@ -103,18 +112,22 @@ genericPersistTest initfunc openfunc =
         ,   removedir
         ]
 
+testHashtable ::  [Test]
 testHashtable = genericTest (return ())
                   (\_ -> new (==) hashString :: IO (HashTable String String))
 
+testMap :: [Test]
 testMap = genericTest (return ())
     (const newMapDBM)
 
+testStringdbm :: [Test]
 testStringdbm = genericPersistTest (return SystemFS)
                    (\f -> openStringVDBM f "testtmp/StringDBM" ReadWriteMode)
                  ++
                  genericTest (return SystemFS)
                    (\f -> openStringVDBM f "testtmp/StringDBM" ReadWriteMode)
 
+tests :: Test
 tests = TestList    [   TestLabel "HashTable" (TestList testHashtable)
                     ,   TestLabel "StringDBM" (TestList testStringdbm)
                     ,   TestLabel "Map" (TestList testMap)

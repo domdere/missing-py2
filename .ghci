@@ -1,4 +1,5 @@
 :set -isrc
+:set -ioriginaltests
 :set prompt ">> "
 :set -Wall
 :set -fno-warn-unused-imports
