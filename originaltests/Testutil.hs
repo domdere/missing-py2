@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 module Testutil (   assertRaises
                 ,   mapassertEqual
                 ,   testBigInt
+                ,   testMedInt
                 ,   testBigDouble
                 ) where
 
@@ -29,6 +30,10 @@ import Foreign.C.Types (CDouble)
 
 testBigInt :: Integer
 testBigInt = (2 :: Integer) ^ (348 :: Integer)
+
+-- Test that a function wont overflow
+testMedInt :: Integer
+testMedInt = (2 :: Integer) ^ (32 :: Integer)
 
 testBigDouble :: CDouble
 testBigDouble= 2.0 ^^ (348 :: Integer)

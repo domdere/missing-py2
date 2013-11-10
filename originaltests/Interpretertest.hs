@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 module Interpretertest(tests) where
 
-import Testutil (testBigInt)
+import Testutil (testMedInt)
 
 import Test.HUnit
 import Python.Interpreter
@@ -44,7 +44,7 @@ testCallByName =
     in
         [   f "repr" "repr" [5::Integer] "5L"
         ,   f "repr2" "repr" [5::CLong] "5"
-        ,   f "pow" "pow" [2::CInt, 32::CInt] testBigInt
+        ,   f "pow" "pow" [2::CInt, 32::CInt] testMedInt
 
         ,   TestLabel "import" $ TestCase $ do
                 pyImport "base64"
