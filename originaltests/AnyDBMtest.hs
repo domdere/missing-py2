@@ -48,7 +48,7 @@ deleteall h = do
 weirdl = sort   [   ("", "empty")
                 ,   ("foo\nbar", "v1\0v2")
                 ,   ("v3,v4", "")
-                ,   ("k\0ey", "\xFF")
+                ,   ("k\0ey", "")
                 ]
 
 createdir = TestCase $ createDirectory "testtmp"

@@ -30,7 +30,7 @@ import Control.Exception (finally)
 
 f' :: (a -> String -> IO b) -> String -> a -> Test
 f' mf fn expression = TestLabel fn $ TestCase $ handlePy exc2ioerror $ do 
-    bzf <- openBz2 ("testsrc/bz2files/" ++ fn) ReadMode 9
+    bzf <- openBz2 ("testfiles/bz2files/" ++ fn) ReadMode 9
     c <- vGetContents bzf
     _ <- mf expression c
     vClose bzf
@@ -51,7 +51,7 @@ testBunzip2 =
     ,   f "t2.bz2" "Test 1Test 2"
     ,   f "empty.bz2" ""
     ,   TestCase $ do
-            bzf <- openBz2 "testsrc/bz2files/zeros.bz2" ReadMode 1
+            bzf <- openBz2 "testfiles/bz2files/zeros.bz2" ReadMode 1
             c <- vGetContents bzf
             10485760 @=? length c
             vClose bzf
@@ -61,7 +61,7 @@ testBunzip2 =
 testBzip2 :: Test
 testBzip2 = TestCase $
     handlePy exc2ioerror $ do
-        bzf <- openBz2 "testsrc/bz2files/deleteme.bz2" WriteMode 9
+        bzf <- openBz2 "testfiles/bz2files/deleteme.bz2" WriteMode 9
         finally (do
             vPutStr bzf "Test 2\n"
             vFlush bzf
@@ -69,7 +69,7 @@ testBzip2 = TestCase $
             vPutStr bzf (replicate 1048576 't')
             vPutChar bzf '\n'
             vClose bzf
-            bzf2 <- openBz2 "testsrc/bz2files/deleteme.bz2" ReadMode 9
+            bzf2 <- openBz2 "testfiles/bz2files/deleteme.bz2" ReadMode 9
             vGetLine bzf2 >>= (@=? "Test 2")
             vGetLine bzf2 >>= (@=? "Test 3")
             _ <- vGetLine bzf2
@@ -81,7 +81,7 @@ testBzip2 = TestCase $
                 @=? c
             assertRaises "closed" (mkIOError illegalOperationErrorType "" Nothing Nothing) (vGetLine bzf2)
             vClose bzf2
-            ) $ removeFile "testsrc/bz2files/deleteme.bz2"
+            ) $ removeFile "testfiles/bz2files/deleteme.bz2"
 
 tests :: Test
 tests = TestList    [   TestLabel "bzip2" testBzip2

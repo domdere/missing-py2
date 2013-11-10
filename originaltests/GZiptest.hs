@@ -29,7 +29,7 @@ import Control.Exception (finally)
 
 f :: String -> String -> Test
 f fn expression = TestCase $ do
-    gzf <- openGz ("testsrc/gzfiles/" ++ fn) ReadMode 9
+    gzf <- openGz ("testfiles/gzfiles/" ++ fn) ReadMode 9
     c <- vGetContents gzf
     expression @=? c
     vClose gzf
@@ -41,14 +41,14 @@ testGunzip =
      --    , "t1bad has errors
     ,   f "t2.gz" "Test 1Test 2"
     ,   TestCase $ handlePy exc2ioerror $
-                do gzf <- openGz "testsrc/gzfiles/t1bad.gz" ReadMode 1
+                do gzf <- openGz "testfiles/gzfiles/t1bad.gz" ReadMode 1
                    assertRaises "crc" (userError "Python <type 'exceptions.IOError'>: CRC check failed")
                       (handlePy exc2ioerror $ do c <- vGetContents gzf
                                                  "nonexistant bad data" @=? c
                       )
                    vClose gzf
     ,   TestCase $ do
-            gzf <- openGz "testsrc/gzfiles/zeros.gz" ReadMode 1
+            gzf <- openGz "testfiles/gzfiles/zeros.gz" ReadMode 1
             c <- vGetContents gzf
             10485760 @=? length c
             vClose gzf
@@ -58,7 +58,7 @@ testGunzip =
 testGzip :: Test
 testGzip = TestCase $
     handlePy exc2ioerror $
-    do gzf <- openGz "testsrc/gzfiles/deleteme.gz" ReadWriteMode 9
+    do gzf <- openGz "testfiles/gzfiles/deleteme.gz" ReadWriteMode 9
        finally (do vPutStr gzf "Test 2\n"
                    vSeek gzf AbsoluteSeek 7
                    vFlush gzf
@@ -66,7 +66,7 @@ testGzip = TestCase $
                    vPutStr gzf (replicate 1048576 't')
                    vPutChar gzf '\n'
                    vClose gzf
-                   gzf2 <- openGz "testsrc/gzfiles/deleteme.gz" ReadMode 9
+                   gzf2 <- openGz "testfiles/gzfiles/deleteme.gz" ReadMode 9
                    vGetLine gzf2 >>= (@=? "Test 2")
                    vGetLine gzf2 >>= (@=? "Test 3")
                    vRewind gzf2
@@ -75,7 +75,7 @@ testGzip = TestCase $
                       @=? c
                    assertRaises "eof" (mkIOError eofErrorType "" Nothing Nothing) (vGetLine gzf2)
                    vClose gzf2
-               ) (removeFile "testsrc/gzfiles/deleteme.gz")
+               ) (removeFile "testfiles/gzfiles/deleteme.gz")
 
 tests :: Test
 tests = TestList    [   TestLabel "gzip" testGzip

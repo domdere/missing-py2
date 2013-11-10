@@ -33,9 +33,10 @@ import Python.Objects.Dict
 
 mf :: AnyDBM a => IO b -> (b -> IO a) -> String -> (a -> Assertion) -> Test
 mf initfunc openfunc msg code =
-    TestLabel msg $ TestCase $ do i <- initfunc
-                                  h <- openfunc i
-                                  finally (code h) (closeA h)
+    TestLabel msg $ TestCase $ do
+        i <- initfunc
+        h <- openfunc i
+        finally (code h) (closeA h)
 
 infix 1 @>=?
 (@>=?) :: (Eq a, Show a) => a -> IO a -> Assertion
@@ -49,31 +50,36 @@ deleteall h = do k <- keysA h
 weirdl = sort [("", "empty"),
                  ("foo\nbar", "v1\0v2"),
                  ("v3,v4", ""),
-                 ("k\0ey", "\xFF")]
+                 ("k\0ey", "")]
 
 genericTest initfunc openfunc =
-    let f = mf initfunc openfunc in
-        [
-         f "empty" $ \h -> do [] @>=? keysA h
-                              [] @>=? valuesA h
-                              [] @>=? toListA h
-                              Nothing @>=? lookupA h "foo"
-        ,f "basic" $ \h -> do insertA h "key" "value"
-                              Just "value" @>=? lookupA h "key"
-                              [("key", "value")] @>=? toListA h
-                              insertA h "key" "v2"
-                              [("key", "v2")] @>=? toListA h
-                              deleteA h "key"
-                              [] @>=? toListA h
-        ,f "mult" $ \h -> do insertListA h [("1", "2"), ("3", "4"), ("5", "6")]
-                             [("1", "2"), ("3", "4"), ("5", "6")] @>=? 
-                                liftM sort (toListA h)
-                             ["1", "3", "5"] @>=? liftM sort (keysA h)
-                             ["2", "4", "6"] @>=? liftM sort (valuesA h)
-                             deleteall h
-        ,f "weirdchars" $ \h -> do insertListA h weirdl
-                                   weirdl @>=? liftM sort (toListA h)
-                                   deleteall h
+    let
+        f = mf initfunc openfunc
+    in
+        [   f "empty" $ \h -> do
+                [] @>=? keysA h
+                [] @>=? valuesA h
+                [] @>=? toListA h
+                Nothing @>=? lookupA h "foo"
+        ,   f "basic" $ \h -> do
+                insertA h "key" "value"
+                Just "value" @>=? lookupA h "key"
+                [("key", "value")] @>=? toListA h
+                insertA h "key" "v2"
+                [("key", "v2")] @>=? toListA h
+                deleteA h "key"
+                [] @>=? toListA h
+        ,   f "mult" $ \h -> do
+                insertListA h [("1", "2"), ("3", "4"), ("5", "6")]
+                [("1", "2"), ("3", "4"), ("5", "6")] @>=?
+                    liftM sort (toListA h)
+                ["1", "3", "5"] @>=? liftM sort (keysA h)
+                ["2", "4", "6"] @>=? liftM sort (valuesA h)
+                deleteall h
+        ,   f "weirdchars" $ \h -> do
+                insertListA h weirdl
+                weirdl @>=? liftM sort (toListA h)
+                deleteall h
         ]
 
 genericPersistTest initfunc openfunc =
