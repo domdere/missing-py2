@@ -2,7 +2,7 @@ language: haskell
 
 before-install:
     -   sudo apt-get update -qq
-    -   sudo apt-get install -qq python-dev
+    -   sudo apt-get install -qq python-dev python-pip python-gdbm
 
 branches:
     only:
