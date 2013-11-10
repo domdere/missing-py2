@@ -16,10 +16,22 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 -}
 
-module Testutil(assertRaises, mapassertEqual) where
+module Testutil (   assertRaises
+                ,   mapassertEqual
+                ,   testBigInt
+                ,   testBigDouble
+                ) where
+
 import Test.HUnit
 import Control.Monad (unless)
 import qualified Control.Exception
+import Foreign.C.Types (CDouble)
+
+testBigInt :: Integer
+testBigInt = (2 :: Integer) ^ (348 :: Integer)
+
+testBigDouble :: CDouble
+testBigDouble= 2.0 ^^ (348 :: Integer)
 
 assertRaises :: (Show a, Control.Exception.Exception b, Eq b) => String -> b -> IO a -> IO ()
 assertRaises msg selector action =

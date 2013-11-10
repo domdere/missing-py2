@@ -17,30 +17,34 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 -}
 
 module Interpretertest(tests) where
+
+import Testutil (testBigInt)
+
 import Test.HUnit
 import Python.Interpreter
 import Foreign.C.Types
 import Python.Objects
-import Python.Utils
 
+testBase :: [Test]
 testBase =
     let f msg t = TestLabel msg $ TestCase t in
-    [
---     f "print" $ pyRun_SimpleString "print \"Hi from Python\\n\""
-     f "longs" $ do pyo <- toPyObject (10::CLong)
-                    newl <- fromPyObject pyo
-                    (10::CLong) @=? newl
+    [   f "longs" $ do
+            pyo <- toPyObject (10::CLong)
+            newl <- fromPyObject pyo
+            (10::CLong) @=? newl
+    ,   f "print" $ pyRun_SimpleString "print \"Hi from Python\\n\""
     ]
 
-testCallbyname =
+testCallByName :: [Test]
+testCallByName =
     let
-        f msg func inp exp = TestLabel msg $ TestCase $ do
+        f msg func inp expression = TestLabel msg $ TestCase $ do
             r <-callByNameHs func inp noKwParms
-            exp @=? r
+            expression @=? r
     in
         [   f "repr" "repr" [5::Integer] "5L"
         ,   f "repr2" "repr" [5::CLong] "5"
-        ,   f "pow" "pow" [2::CInt, 32::CInt] ((2 ^ 32)::Integer)
+        ,   f "pow" "pow" [2::CInt, 32::CInt] testBigInt
 
         ,   TestLabel "import" $ TestCase $ do
                 pyImport "base64"
@@ -48,12 +52,14 @@ testCallbyname =
                 "aGk=\n" @=? r
         ]
 
+testArgs :: [Test]
 testArgs =
-    let f msg code inp exp = TestLabel msg $ TestCase $
-                               do let testhdict = [("testval", inp)]
-                                  retobj <- pyRun_StringHs code Py_eval_input testhdict
-                                  exp @=? retobj
-        in
+    let
+        f msg code inp expression = TestLabel msg $ TestCase $ do
+            let testhdict = [("testval", inp)]
+            retobj <- pyRun_StringHs code Py_eval_input testhdict
+            expression @=? retobj
+    in
         [   f "addition" "testval + 3" (2::CLong) (5::CLong)
 {-
         ,   TestLabel "m1" $ TestCase $
@@ -65,7 +71,8 @@ testArgs =
         ]
 
 
+tests :: Test
 tests = TestList    [   TestLabel "base" (TestList testBase)
                     ,   TestLabel "args" (TestList testArgs)
-                    ,   TestLabel "callByName" (TestList testCallbyname)
+                    ,   TestLabel "callByName" (TestList testCallByName)
                     ]

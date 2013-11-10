@@ -17,6 +17,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 -}
 
 module Objectstest(tests) where
+
+import Testutil (   testBigInt
+                ,   testBigDouble
+                )
+
 import Test.HUnit
 import Python.Objects
 import Foreign.C.Types
@@ -31,11 +36,6 @@ f msg inp code expression = TestLabel msg $ TestCase $ do
     r <- code pyo
     expression @=? r
 
-testBigInt :: Integer
-testBigInt = (2 :: Integer) ^ (348 :: Integer)
-
-testBigDouble :: CDouble
-testBigDouble= 2.0 ^^ (348 :: Integer)
 
 testBase :: [Test]
 testBase =

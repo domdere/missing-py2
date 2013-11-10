@@ -48,13 +48,12 @@ where
 
 import Python.Utils (withPyObject, checkCInt)
 import Python.Objects (strOf)
-import Python.Types (
-                          excType
-                        , excValue
-                        , excFormatted
-                        , PyObject
-                        , PyException
-                        )
+import Python.Types (   excType
+                    ,   excValue
+                    ,   excFormatted
+                    ,   PyObject
+                    ,   PyException
+                    )
 import Data.Dynamic (fromDynamic)
 import Python.ForeignImports (pyErr_GivenExceptionMatches)
 import Control.Exception (throw, catch, Exception)

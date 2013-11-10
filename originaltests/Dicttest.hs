@@ -18,13 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 module Dicttest(mf, genericTest, tests) where
 import Test.HUnit
-import Data.List.Utils
-import System.IO.HVFS
-import System.IO.HVFS.InstanceHelpers
 import Database.AnyDBM
-import Database.AnyDBM.StringDBM
-import Database.AnyDBM.MapDBM
-import Data.HashTable
 import Data.List (sort)
 import Control.Exception (finally)
 import Control.Monad (liftM)
@@ -38,20 +32,25 @@ mf initfunc openfunc msg code =
         h <- openfunc i
         finally (code h) (closeA h)
 
-infix 1 @>=?
 (@>=?) :: (Eq a, Show a) => a -> IO a -> Assertion
-(@>=?) exp res = do r <- res
-                    exp @=? r
+(@>=?) expression res = do
+    r <- res
+    expression @=? r
+infix 1 @>=?
 
-deleteall h = do k <- keysA h
-                 mapM_ (deleteA h) k
-                 [] @>=? keysA h
+deleteall :: AnyDBM a => a -> IO ()
+deleteall h = do
+    k <- keysA h
+    mapM_ (deleteA h) k
+    [] @>=? keysA h
 
+weirdl :: [(String, String)]
 weirdl = sort [("", "empty"),
                  ("foo\nbar", "v1\0v2"),
                  ("v3,v4", ""),
                  ("k\0ey", "")]
 
+genericTest :: AnyDBM b => IO a -> (a -> IO b) -> [Test]
 genericTest initfunc openfunc =
     let
         f = mf initfunc openfunc
@@ -82,29 +81,30 @@ genericTest initfunc openfunc =
                 deleteall h
         ]
 
-genericPersistTest initfunc openfunc =
-    let f = mf initfunc openfunc in
-        [
-         f "empty" deleteall 
-        ,f "weirdpop" $ \h -> insertListA h weirdl
-        ,f "weirdcheck" $ \h -> do weirdl @>=? liftM sort (toListA h)
-                                   deleteall h
-                                   insertA h "key" "value"
-        ,f "step3" $ \h -> do [("key", "value")] @>=? liftM sort (toListA h)
-                              insertA h "key" "v2"
-                              insertA h "z" "y"
-        ,f "step4" $ \h -> [("key", "v2"), ("z", "y")] @>=?
-                                 liftM sort (toListA h)
-        ,f "cleanup" deleteall
-        ]
+--genericPersistTest :: AnyDBM b => IO a -> (a -> IO b) -> [Test]
+--genericPersistTest initfunc openfunc =
+--    let
+--        f = mf initfunc openfunc
+--    in
+--        [   f "empty" deleteall
+--        ,   f "weirdpop" $ \h -> insertListA h weirdl
+--        ,   f "weirdcheck" $ \h -> do
+--                weirdl @>=? liftM sort (toListA h)
+--                deleteall h
+--                insertA h "key" "value"
+--        ,   f "step3" $ \h -> do
+--                [("key", "value")] @>=? liftM sort (toListA h)
+--                insertA h "key" "v2"
+--                insertA h "z" "y"
+--        ,   f "step4" $ \h -> [("key", "v2"), ("z", "y")] @>=? liftM sort (toListA h)
+--        ,   f "cleanup" deleteall
+--        ]
 
+testDict :: [Test]
 testDict = genericTest (return ())
-             (\_ -> toPyObject ([]::[(String, String)]) >>= return . mkPyDict)
+             (const $ liftM mkPyDict (toPyObject ([] :: [(String, String)])))
 
 
-
-tests = TestList [TestLabel "Basic Dict" (TestList testDict)
-                 ]
-
-
-
+tests :: Test
+tests = TestList    [   TestLabel "Basic Dict" (TestList testDict)
+                    ]
