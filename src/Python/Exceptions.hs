@@ -64,7 +64,7 @@ import Control.Exception (throw, catch, Exception)
 If it raises a 'PyException', then execute the supplied handler and return
 its return value.  Otherwise, process as normal. -}
 catchPy :: IO a -> (PyException -> IO a) -> IO a
-catchPy = catch
+catchPy = Control.Exception.catch
 
 {- | Like 'catchPy', with the order of arguments reversed. -}
 handlePy :: (PyException -> IO a) -> IO a -> IO a
