@@ -20,6 +20,8 @@ That **may** be neccessary, however the unit tests seem to run fine without it n
 
 Don't forget to run `py_initialize` from `Python.Interpreter` during the start up phase of your application
 
+Requires the `python-dev` libs, which can be installed on Ubuntu with `sudo apt-get install python-dev`.
+
 # See Also
 
 -   [**softmechanics/missingpy**] [softmechanics-missingpy] : The original project
