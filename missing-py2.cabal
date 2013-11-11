@@ -31,9 +31,14 @@ bug-reports: https://github.com/domdere/missing-py2/issues
 
 description:
 
- A fork of John Goerzen's MissingPy library, hlinted and updated to run with GHC 7.6.3
-
  A Haskell Interface into the standard Python Interpreter
+
+ A fork of John Goerzen's MissingPy library, hlinted and updated to run with GHC 7.6.3,
+
+ this is for legacy projects,
+
+ for newer projects you might want to consider http://hackage.haskell.org/package/cpython
+ instead
 
  Original Documentation:
 

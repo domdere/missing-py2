@@ -10,6 +10,6 @@
 #cabal build directory:
 dist/
 cabal-dev/
+sandbox/
 
-#cabal-dev build info
 *.buildinfo
