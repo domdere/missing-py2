@@ -25,8 +25,8 @@ Requires the `python-dev` libs, which can be installed on Ubuntu with `sudo apt-
 # See Also
 
 -   [**softmechanics/missingpy**] [softmechanics-missingpy] : The original project
--   [**cpython**](http://hackage.haskell.org/package/cpython "cpython on hackage") : Another well-maintained set of `libpython` bindings,
-    this would probably be recommended for new projects.
+-   [**cpython**](http://hackage.haskell.org/package/cpython "cpython on hackage") : Another set of `libpython` bindings (looks more well-maintained),
+    this would probably be preferable for new projects.
 
 
 [softmechanics-missingpy]: https://github.com/softmechanics/missingpy "softmechanics/missingpy on GitHub.com"
