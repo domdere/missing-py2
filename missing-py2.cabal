@@ -18,9 +18,9 @@ description:
  A Haskell Interface into the standard Python Interpreter
 
  Original Documentation:
- 
+
  MissingPy is two things:
- 
+
  .
  A Haskell binding for many C and Python libraries for tasks such as
  data compression, databases, etc.  This can be found in the
@@ -60,9 +60,9 @@ library
         Python.ForeignImports
 
     build-depends:
-        base == 4.*,
-        MissingH >= 1.0.1,
-        anydbm >= 1.0.5
+            base < 5 && >= 4
+        ,   MissingH >= 1.0.1
+        ,   anydbm >= 1.0.5
 
     hs-source-dirs:
         src
@@ -82,7 +82,7 @@ test-suite  originalunittests
             Haskell2010
 
     build-depends:
-        base == 4.*,
+        base < 5 && >=  4,
         Cabal,
         anydbm >= 1.0.5,
         directory,
@@ -97,6 +97,3 @@ test-suite  originalunittests
 
     hs-source-dirs:
         originaltests
-
-    default-extensions:
-        OverlappingInstances
