@@ -1,5 +1,5 @@
 name: missing-py2
-version: 1.0.0
+version: 1.0.1
 license: GPL-2
 maintainer: Dom De Re
 author: John Goerzen
@@ -31,41 +31,44 @@ bug-reports: https://github.com/domdere/missing-py2/issues
 
 description:
 
- A Haskell Interface into the standard Python Interpreter
-
- A fork of John Goerzen's MissingPy library, hlinted and updated to run with GHC 7.6.3,
-
- this is for legacy projects,
-
- for newer projects you might want to consider http://hackage.haskell.org/package/cpython
- instead
-
- Original Documentation:
-
- MissingPy is two things:
-
- .
- A Haskell binding for many C and Python libraries for tasks such as
- data compression, databases, etc.  This can be found in the
- MissingPy module tree.
- .
- Also, it's a low-level Haskell binding to the Python interpreter to
- enable development of hybrid applications that use both
- environments.  This can be found in the Python module tree.  The
- Haskell bindings above use this environment.
- .
- MissingPy permits you to call Python code from Haskell.  It does NOT
- permit you to call Haskell code from Python.
- .
- MissingPy is the companion to my MissingH library, and integrates with
- it.
+    A Haskell Interface into the standard Python Interpreter
+    .
+    A fork of John Goerzen's MissingPy library, hlinted and updated to run with GHC 7.6.3,
+    this is for legacy projects.
+    .
+    For newer projects you might want to consider http://hackage.haskell.org/package/cpython
+    instead.
+    .
+    Original Documentation:
+    .
+    MissingPy is two things:
+    .
+    A Haskell binding for many C and Python libraries for tasks such as
+    data compression, databases, etc.  This can be found in the
+    MissingPy module tree.
+    .
+    Also, it's a low-level Haskell binding to the Python interpreter to
+    enable development of hybrid applications that use both
+    environments.  This can be found in the Python module tree.  The
+    Haskell bindings above use this environment.
+    .
+    MissingPy permits you to call Python code from Haskell.  It does NOT
+    permit you to call Haskell code from Python.
+    .
+    MissingPy is the companion to my MissingH library, and integrates with
+    it.
 
 build-type: Custom
 cabal-version: >= 1.10
 
 source-repository   head
     type:       git
-    location:   https://github.com/domdere/missing-py2
+    location:   git://github.com/domdere/missing-py2.git
+
+source-repository   this
+    type:       git
+    location:   git://github.com/domdere/missing-py2.git
+    tag:        1.0.1
 
 library
     default-language:
